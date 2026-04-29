@@ -241,6 +241,22 @@ export default apiInitializer("1.13.0", function (api) {
     setTimeout(hideGenderOptionsSignup, 0);
   });
 
+  // ---- Block F — Force Arabic label on post-action-menu reply buttons ----
+  // Workaround for an i18n gap on this Discourse install where the original-post
+  // (post #1) reply button renders the default-locale ("Antworten") while reply
+  // posts render the Arabic "الرد". The key isn't in any loaded I18n.translations
+  // dictionary, so a YAML override isn't enough — we patch the rendered DOM.
+  var REPLY_BUTTON_LABEL = "الرد";
+  function fixReplyButtonLabels() {
+    var labels = document.querySelectorAll(".post-action-menu__reply .d-button-label");
+    for (var i = 0; i < labels.length; i++) {
+      var span = labels[i];
+      if (span.textContent.trim() !== REPLY_BUTTON_LABEL) {
+        span.textContent = REPLY_BUTTON_LABEL;
+      }
+    }
+  }
+
   // ---- Shared hooks (registered once) ----
   function runAll() {
     applyMomentLocale();      // re-apply in case Discourse reset locale
@@ -248,6 +264,7 @@ export default apiInitializer("1.13.0", function (api) {
     shortenSignupLabels();
     hideGenderOptionsPreferences();
     hideGenderOptionsSignup();
+    fixReplyButtonLabels();
   }
 
   // SPA navigation
@@ -275,6 +292,7 @@ export default apiInitializer("1.13.0", function (api) {
       runDomPass();
       shortenSignupLabels();
       hideGenderOptionsPreferences();
+      fixReplyButtonLabels();
     });
   }
 
