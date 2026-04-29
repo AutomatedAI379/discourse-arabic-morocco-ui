@@ -19,10 +19,11 @@ body.published-page.ar {
   direction: rtl !important;
 }
 
-// 4. Hide German label leak on icon-only post buttons (Arabic UI).
-// Discourse renders .no-text icon buttons with a fallback <span class="d-button-label">
-// for screen readers; some installs don't hide it visually, leaking the default-locale
-// (German) text on Arabic UI. The aria-label and title remain Arabic for a11y.
-html[lang^="ar"] .btn.no-text .d-button-label {
-  display: none !important;
+// 4. Force post-action-menu reply button label visible on Arabic UI.
+// Discourse renders this button as `.no-text btn-icon` (icon-only) after post
+// cloak/uncloak on scroll, which would normally hide `.d-button-label`. Block F
+// in arabic-ui.js sets/creates the label text "الرد"; this rule keeps it visible
+// even when Discourse adds the .no-text / btn-icon classes during re-render.
+html[lang^="ar"] .post-action-menu__reply .d-button-label {
+  display: inline-block !important;
 }

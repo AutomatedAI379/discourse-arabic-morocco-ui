@@ -248,9 +248,17 @@ export default apiInitializer("1.13.0", function (api) {
   // dictionary, so a YAML override isn't enough — we patch the rendered DOM.
   var REPLY_BUTTON_LABEL = "الرد";
   function fixReplyButtonLabels() {
-    var labels = document.querySelectorAll(".post-action-menu__reply .d-button-label");
-    for (var i = 0; i < labels.length; i++) {
-      var span = labels[i];
+    var buttons = document.querySelectorAll(".post-action-menu__reply");
+    for (var i = 0; i < buttons.length; i++) {
+      var btn = buttons[i];
+      var span = btn.querySelector(".d-button-label");
+      // After uncloak Discourse re-renders the button as icon-only (.no-text btn-icon)
+      // without the .d-button-label span. Recreate it so the CSS rule can show "الرد".
+      if (!span) {
+        span = document.createElement("span");
+        span.className = "d-button-label";
+        btn.appendChild(span);
+      }
       if (span.textContent.trim() !== REPLY_BUTTON_LABEL) {
         span.textContent = REPLY_BUTTON_LABEL;
       }
