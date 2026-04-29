@@ -12,4 +12,37 @@ export default apiInitializer("1.13.0", function (api) {
 
   // Sentinel for QA: confirms the initializer ran on Arabic UI.
   try { console.info("[arabic-ui] active"); } catch (e) {}
+
+  // ---- Helpers shared by Blocks B and C ----
+  function toLatinDigits(s) {
+    if (!s) return s;
+    return s
+      .replace(/[٠-٩]/g, function (d) { return "٠١٢٣٤٥٦٧٨٩".indexOf(d); })
+      .replace(/[۰-۹]/g, function (d) { return "۰۱۲۳۴۵۶۷۸۹".indexOf(d); });
+  }
+
+  // ---- Block B — Locale fix (root cause) ----
+  var req = (window && window.require) ? window.require : null;
+
+  // Moment.js: switch to built-in ar-ma (Moroccan months baked in) and force Latin digits.
+  var moment = null;
+  try {
+    moment = (req && (req("moment").default || req("moment"))) || null;
+  } catch (e) { moment = null; }
+  if (!moment && window.moment) moment = window.moment;
+
+  function applyMomentLocale() {
+    if (!moment) return;
+    try {
+      moment.updateLocale("ar-ma", { postformat: toLatinDigits });
+      moment.locale("ar-ma");
+    } catch (e) {
+      try { console.warn("[arabic-ui] moment locale set failed:", e); } catch (_) {}
+    }
+  }
+  applyMomentLocale();
+
+  if (!moment) {
+    try { console.warn("[arabic-ui] moment unavailable — skipping Block B Moment branch"); } catch (e) {}
+  }
 });
