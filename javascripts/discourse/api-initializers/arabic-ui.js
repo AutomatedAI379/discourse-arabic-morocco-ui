@@ -73,4 +73,94 @@ export default apiInitializer("1.13.0", function (api) {
       try { console.warn("[arabic-ui] dayjs locale set failed:", e); } catch (_) {}
     }
   }
+
+  // ---- Block C — DOM safety pass (backup) ----
+  var HAS_AR_NUM = /[٠-٩۰-۹]/;
+  var monthRules = [
+    { re: /أغسطس/g, to: "غشت" },
+    { re: /سبتمبر/g, to: "شتنبر" },
+    { re: /نوفمبر/g, to: "نونبر" },
+    { re: /ديسمبر/g, to: "دجنبر" },
+    { re: /مايو/g, to: "ماي" },
+    { re: /يوليو(?!ز)/g, to: "يوليوز" }
+  ];
+
+  function fixMonths(s) {
+    if (!s) return s;
+    for (var i = 0; i < monthRules.length; i++) s = s.replace(monthRules[i].re, monthRules[i].to);
+    return s;
+  }
+  function fixStr(s) {
+    if (!s) return s;
+    var t = HAS_AR_NUM.test(s) ? toLatinDigits(s) : s;
+    return fixMonths(t);
+  }
+
+  // UI date surfaces — explicit allow-list. Never includes .cooked (user content).
+  var UI_SELECTORS = [
+    "time[datetime]",
+    ".relative-date",
+    ".topic-list .age .relative-date",
+    ".topic-list .latest .relative-date",
+    ".topic-list .post-activity .relative-date",
+    ".topic-post .post-info",
+    ".topic-status-info",
+    ".topic-meta-data",
+    ".topic-timer",
+    ".topic-map",
+    ".topic-links",
+    ".quote .title",
+    ".topic-timeline",
+    ".timeline-container",
+    // Added in consolidation (cover known leak surfaces inside threads):
+    ".user-card",
+    ".edit-history",
+    ".small-action",
+    ".notification-list",
+    ".user-stream-item",
+    ".search-results",
+    ".directory .relative-date"
+  ];
+
+  function isInsideCooked(el) {
+    return !!(el && el.closest && el.closest(".cooked"));
+  }
+
+  function processNodeText(el) {
+    if (isInsideCooked(el)) return;
+    var walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, null, false);
+    var nodes = [], n;
+    while ((n = walker.nextNode())) nodes.push(n);
+    for (var i = 0; i < nodes.length; i++) {
+      var tn = nodes[i];
+      if (isInsideCooked(tn.parentElement)) continue;
+      var old = tn.nodeValue;
+      var next = fixStr(old);
+      if (next !== old) tn.nodeValue = next;
+    }
+    var attrs = ["title", "aria-label", "data-original-title"];
+    for (var a = 0; a < attrs.length; a++) {
+      var attr = attrs[a];
+      if (el.hasAttribute && el.hasAttribute(attr)) {
+        var oldA = el.getAttribute(attr);
+        var nextA = fixStr(oldA);
+        if (nextA !== oldA) el.setAttribute(attr, nextA);
+      }
+    }
+  }
+
+  function processUI(root) {
+    if (!root || !root.querySelectorAll) return;
+    for (var s = 0; s < UI_SELECTORS.length; s++) {
+      var sel = UI_SELECTORS[s];
+      var list = root.querySelectorAll(sel);
+      for (var i = 0; i < list.length; i++) processNodeText(list[i]);
+      if (root.matches && root.matches(sel)) processNodeText(root);
+    }
+  }
+
+  function runDomPass() { processUI(document); }
+
+  // Initial pass on this page.
+  runDomPass();
 });
