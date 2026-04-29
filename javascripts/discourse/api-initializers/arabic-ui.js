@@ -45,4 +45,32 @@ export default apiInitializer("1.13.0", function (api) {
   if (!moment) {
     try { console.warn("[arabic-ui] moment unavailable — skipping Block B Moment branch"); } catch (e) {}
   }
+
+  // Day.js: override 'ar' locale with Moroccan months + Latin digits.
+  var dayjs = null, updateLocale = null;
+  try {
+    dayjs = (req && (req("dayjs").default || req("dayjs"))) || null;
+    updateLocale = (req && (req("dayjs/plugin/updateLocale").default || req("dayjs/plugin/updateLocale"))) || null;
+  } catch (e) { dayjs = dayjs || null; }
+  if (!dayjs && window.dayjs) dayjs = window.dayjs;
+  if (!updateLocale && window.dayjs_plugin_updateLocale) updateLocale = window.dayjs_plugin_updateLocale;
+
+  if (dayjs && updateLocale && dayjs.extend) {
+    var moroccanMonths = [
+      "يناير","فبراير","مارس","أبريل","ماي","يونيو",
+      "يوليوز","غشت","شتنبر","أكتوبر","نونبر","دجنبر"
+    ];
+    try {
+      dayjs.extend(updateLocale);
+      dayjs.updateLocale("ar", {
+        months: moroccanMonths,
+        monthsShort: moroccanMonths,
+        preparse: toLatinDigits,
+        postformat: toLatinDigits
+      });
+      dayjs.locale("ar");
+    } catch (e) {
+      try { console.warn("[arabic-ui] dayjs locale set failed:", e); } catch (_) {}
+    }
+  }
 });
