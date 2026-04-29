@@ -193,4 +193,23 @@ export default apiInitializer("1.13.0", function (api) {
     if (resizeTid) clearTimeout(resizeTid);
     resizeTid = setTimeout(shortenSignupLabels, 100);
   }, { passive: true });
+
+  // ---- Block E1 — Gender hider on preferences pages (from #2) ----
+  var GENDER_PREFS_HIDE_TEXT = ["متنوع", "عدم الإفصاح"];
+
+  function hideGenderOptionsPreferences() {
+    var rows = document.querySelectorAll(
+      ".user-field-geschlecht--gender .select-kit-body .select-kit-item"
+    );
+    for (var i = 0; i < rows.length; i++) {
+      var row = rows[i];
+      var text = (row.textContent || "").trim();
+      for (var j = 0; j < GENDER_PREFS_HIDE_TEXT.length; j++) {
+        if (text.indexOf(GENDER_PREFS_HIDE_TEXT[j]) !== -1) {
+          row.style.display = "none";
+          break;
+        }
+      }
+    }
+  }
 });
