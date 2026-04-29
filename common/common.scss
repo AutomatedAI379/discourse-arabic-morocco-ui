@@ -1,0 +1,20 @@
+// discourse-arabic-morocco-ui — common.scss
+// Consolidates: composer hide (#3), gender option hide (#5), published-page RTL (#6).
+
+// 1. Composer — hide category & tags inputs (Arabic only)  [from #3]
+html[lang^="ar"] .category-input,
+html[lang^="ar"] .tags-input {
+  display: none !important;
+}
+
+// 2. Gender options — hide on Arabic UI (signup, by data-value)  [from #5]
+html[lang^="ar"] .select-kit-body .select-kit-row[data-value*="Divers / Diverse"],
+html[lang^="ar"] .select-kit-body .select-kit-row[data-value*="Prefer not to say"],
+html[lang^="ar"] .select-kit-body .select-kit-row[data-value*="عدم الإفصاح"] {
+  display: none !important;
+}
+
+// 3. Published page — RTL  [from #6]
+body.published-page.ar {
+  direction: rtl !important;
+}
