@@ -240,4 +240,55 @@ export default apiInitializer("1.13.0", function (api) {
     if (!genderField) return;
     setTimeout(hideGenderOptionsSignup, 0);
   });
+
+  // ---- Shared hooks (registered once) ----
+  function runAll() {
+    applyMomentLocale();      // re-apply in case Discourse reset locale
+    runDomPass();
+    shortenSignupLabels();
+    hideGenderOptionsPreferences();
+    hideGenderOptionsSignup();
+  }
+
+  // SPA navigation
+  api.onPageChange(function () { runAll(); });
+
+  // App-events (extra coverage for stream / list / search refresh)
+  try {
+    var appEvents = api.container.lookup("service:app-events") || api.container.lookup("app-events:main");
+    var evts = ["page:changed", "topic:loaded", "post-stream:refresh"];
+    for (var e = 0; e < evts.length; e++) {
+      if (appEvents) appEvents.on(evts[e], runAll);
+    }
+  } catch (e) {
+    try { console.warn("[arabic-ui] app-events wiring failed:", e); } catch (_) {}
+  }
+
+  // One global MutationObserver — drives DOM-side passes for B/C/D/E1.
+  // requestAnimationFrame coalesces bursts (chat / scroll / lazy posts).
+  var rafScheduled = false;
+  function scheduleRun() {
+    if (rafScheduled) return;
+    rafScheduled = true;
+    requestAnimationFrame(function () {
+      rafScheduled = false;
+      runDomPass();
+      shortenSignupLabels();
+      hideGenderOptionsPreferences();
+    });
+  }
+
+  var mo = new MutationObserver(function (muts) {
+    for (var i = 0; i < muts.length; i++) {
+      var m = muts[i];
+      if (m.type === "characterData" || (m.addedNodes && m.addedNodes.length)) {
+        scheduleRun();
+        return;
+      }
+    }
+  });
+  mo.observe(document.body, { childList: true, subtree: true, characterData: true });
+
+  // Initial run
+  runAll();
 });
