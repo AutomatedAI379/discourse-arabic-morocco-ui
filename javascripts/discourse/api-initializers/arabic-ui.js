@@ -163,4 +163,34 @@ export default apiInitializer("1.13.0", function (api) {
 
   // Initial pass on this page.
   runDomPass();
+
+  // ---- Block D — Signup label shortener (#4) ----
+  var SIGNUP_LABEL_REPLACEMENTS = {
+    "Alter / Age / Âge / العمر / Возраст / Вік": "العمر",
+    "Geschlecht / Gender / Genre / الجنس / Пол / Стать": "الجنس",
+    "Sprache / Language / Langue / اللغة / Мова / Язык": "اللغة",
+    "Land / Country / Pays / بلد / Країна / Страна": "البلد"
+  };
+
+  function isSignupPage() { return window.location.pathname === "/signup"; }
+  function isSmallViewport() { return window.innerWidth < 500; }
+
+  function shortenSignupLabels() {
+    if (!isSignupPage() || !isSmallViewport()) return;
+    var labels = document.querySelectorAll("label");
+    for (var i = 0; i < labels.length; i++) {
+      var label = labels[i];
+      var text = (label.textContent || "").trim();
+      if (SIGNUP_LABEL_REPLACEMENTS[text]) {
+        label.textContent = SIGNUP_LABEL_REPLACEMENTS[text];
+      }
+    }
+  }
+
+  // Resize handler (rotation / soft keyboard / viewport changes).
+  var resizeTid = null;
+  window.addEventListener("resize", function () {
+    if (resizeTid) clearTimeout(resizeTid);
+    resizeTid = setTimeout(shortenSignupLabels, 100);
+  }, { passive: true });
 });
