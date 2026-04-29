@@ -212,4 +212,32 @@ export default apiInitializer("1.13.0", function (api) {
       }
     }
   }
+
+  // ---- Block E2 — Gender hider on signup (from #5) ----
+  var GENDER_SIGNUP_HIDE_VALUES = [
+    "Divers / Diverse / Divers / متنوع / Другое / Інша",
+    "Keine Angabe / Prefer not to say / Préfère ne pas dire / أفضل عدم الإفصاح / Предпочитаю не указывать / Не вказувати"
+  ];
+
+  function hideGenderOptionsSignup() {
+    if (!isSignupPage()) return;
+    var rows = document.querySelectorAll(".user-field-geschlecht li.select-kit-row");
+    for (var i = 0; i < rows.length; i++) {
+      var row = rows[i];
+      var value = row.dataset.value || row.dataset.name || row.textContent || "";
+      for (var j = 0; j < GENDER_SIGNUP_HIDE_VALUES.length; j++) {
+        if (value.indexOf(GENDER_SIGNUP_HIDE_VALUES[j]) !== -1) {
+          row.style.display = "none";
+          break;
+        }
+      }
+    }
+  }
+
+  // Click delegation — kept from #5; gives select-kit time to render rows.
+  document.addEventListener("click", function (event) {
+    var genderField = event.target.closest && event.target.closest(".user-field-geschlecht");
+    if (!genderField) return;
+    setTimeout(hideGenderOptionsSignup, 0);
+  });
 });
