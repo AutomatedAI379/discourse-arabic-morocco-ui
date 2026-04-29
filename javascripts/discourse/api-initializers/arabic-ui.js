@@ -301,11 +301,22 @@ export default apiInitializer("1.13.0", function (api) {
       var m = muts[i];
       if (m.type === "characterData" || (m.addedNodes && m.addedNodes.length)) {
         scheduleRun();
+        scheduleLabelFix();
         return;
       }
     }
   });
   mo.observe(document.body, { childList: true, subtree: true, characterData: true });
+
+  // Block F sensitive to render timing — Discourse cloaks posts on scroll-out
+  // and re-renders them on scroll-back, after our rAF has already finished.
+  // Debounced delayed re-run catches the post-Ember-render state.
+  var labelFixTid = null;
+  function scheduleLabelFix() {
+    if (labelFixTid) clearTimeout(labelFixTid);
+    labelFixTid = setTimeout(fixReplyButtonLabels, 250);
+  }
+  window.addEventListener("scroll", scheduleLabelFix, { passive: true });
 
   // Initial run
   runAll();
