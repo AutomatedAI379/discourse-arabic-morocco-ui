@@ -14,15 +14,9 @@ All JS is gated by an Arabic-UI guard (`html.classList.contains("ar")` or `html.
 
 ## Install
 
-**Via Git (recommended):**
-1. Push this repo to a Git remote you control (GitHub/GitLab).
-2. In Discourse: **Admin → Customize → Components → Install → From a git repository** and paste the repo URL.
-3. Add the component to your active theme.
+In Discourse: **Admin → Customize → Components → Install → From a git repository** and paste this repo's URL. Then add the component to your active theme.
 
-**Via paste (fallback):**
-Create a new component in Discourse admin and paste:
-- The contents of `common/common.scss` into the **Common → CSS** tab.
-- The contents of `javascripts/discourse/api-initializers/arabic-ui.js` into the **Common → Header** tab, wrapped in a `<script type="text/discourse-plugin" version="0.8">` block — **but note:** that tag is being deprecated. Prefer the Git install path.
+Note: paste-install via `<script type="text/discourse-plugin">` is not supported because the JS uses ES module syntax (`import`/`export default`) that requires Discourse's module bundler to resolve `discourse/lib/api`. Use the Git install path.
 
 ## Rollback
 

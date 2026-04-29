@@ -17,8 +17,8 @@ export default apiInitializer("1.13.0", function (api) {
   function toLatinDigits(s) {
     if (!s) return s;
     return s
-      .replace(/[٠-٩]/g, function (d) { return "٠١٢٣٤٥٦٧٨٩".indexOf(d); })
-      .replace(/[۰-۹]/g, function (d) { return "۰۱۲۳۴۵۶۷۸۹".indexOf(d); });
+      .replace(/[٠-٩]/g, function (d) { return String("٠١٢٣٤٥٦٧٨٩".indexOf(d)); })
+      .replace(/[۰-۹]/g, function (d) { return String("۰۱۲۳۴۵۶۷۸۹".indexOf(d)); });
   }
 
   // ---- Block B — Locale fix (root cause) ----
@@ -51,7 +51,7 @@ export default apiInitializer("1.13.0", function (api) {
   try {
     dayjs = (req && (req("dayjs").default || req("dayjs"))) || null;
     updateLocale = (req && (req("dayjs/plugin/updateLocale").default || req("dayjs/plugin/updateLocale"))) || null;
-  } catch (e) { dayjs = dayjs || null; }
+  } catch (e) { dayjs = null; updateLocale = null; }
   if (!dayjs && window.dayjs) dayjs = window.dayjs;
   if (!updateLocale && window.dayjs_plugin_updateLocale) updateLocale = window.dayjs_plugin_updateLocale;
 
