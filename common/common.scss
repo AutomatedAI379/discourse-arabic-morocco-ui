@@ -18,3 +18,11 @@ html[lang^="ar"] .select-kit-body .select-kit-row[data-value*="عدم الإفص
 body.published-page.ar {
   direction: rtl !important;
 }
+
+// 4. Hide German label leak on icon-only post buttons (Arabic UI).
+// Discourse renders .no-text icon buttons with a fallback <span class="d-button-label">
+// for screen readers; some installs don't hide it visually, leaking the default-locale
+// (German) text on Arabic UI. The aria-label and title remain Arabic for a11y.
+html[lang^="ar"] .btn.no-text .d-button-label {
+  display: none !important;
+}
