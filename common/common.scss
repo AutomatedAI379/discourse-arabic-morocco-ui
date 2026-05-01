@@ -27,3 +27,15 @@ body.published-page.ar {
 html[lang^="ar"] .post-action-menu__reply .d-button-label {
   display: inline-block !important;
 }
+
+// 5. Composer title — force RTL on Arabic UI. Block G in arabic-ui.js
+// also sets the dir="rtl" attribute, because <input> caret / typing
+// direction is controlled by the dir attribute, not by CSS direction.
+html[lang^="ar"] input#reply-title {
+  direction: rtl !important;
+  text-align: right !important;
+}
+html[lang^="ar"] input#reply-title::placeholder {
+  direction: rtl !important;
+  text-align: right !important;
+}

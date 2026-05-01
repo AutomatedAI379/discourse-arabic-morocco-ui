@@ -241,6 +241,17 @@ export default apiInitializer("1.13.0", function (api) {
     setTimeout(hideGenderOptionsSignup, 0);
   });
 
+  // ---- Block G — Composer title RTL (input dir attribute) ----
+  // CSS sets visual RTL on #reply-title, but <input> caret / typing direction
+  // is controlled by the dir attribute, not by CSS direction. Setting the
+  // attribute keeps the cursor on the right side and makes typing flow RTL.
+  function applyComposerTitleRTL() {
+    var title = document.querySelector("input#reply-title");
+    if (title && title.getAttribute("dir") !== "rtl") {
+      title.setAttribute("dir", "rtl");
+    }
+  }
+
   // ---- Block F — Force Arabic label on post-action-menu reply buttons ----
   // Workaround for an i18n gap on this Discourse install where the original-post
   // (post #1) reply button renders the default-locale ("Antworten") while reply
@@ -273,6 +284,7 @@ export default apiInitializer("1.13.0", function (api) {
     hideGenderOptionsPreferences();
     hideGenderOptionsSignup();
     fixReplyButtonLabels();
+    applyComposerTitleRTL();
   }
 
   // SPA navigation
@@ -301,6 +313,7 @@ export default apiInitializer("1.13.0", function (api) {
       shortenSignupLabels();
       hideGenderOptionsPreferences();
       fixReplyButtonLabels();
+      applyComposerTitleRTL();
     });
   }
 
